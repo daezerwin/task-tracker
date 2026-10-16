@@ -34,7 +34,7 @@ docker run --rm php:8.4-cli php -r "echo 'base64:'.base64_encode(random_bytes(32
 2. Paste in the contents of [`docker-compose.prod.yml`](docker-compose.prod.yml).
 3. Under **Environment variables**, add:
    - `APP_KEY` = the `base64:...` value from step 1
-   - `APP_URL` = e.g. `http://your-server-ip:8081`
+   - `APP_URL` = e.g. `http://your-server-ip:8099`
 4. Click **Deploy the stack**.
 
 To pin a release instead of tracking `latest`, change the `image:` line to
@@ -55,15 +55,15 @@ Or over SSH:
 git clone git@github.com:daezerwin/task-tracker.git
 cd task-tracker
 export APP_KEY="base64:...(from step 1)"
-export APP_URL="http://your-server-ip:8081"
+export APP_URL="http://your-server-ip:8099"
 docker compose up -d --build
 ```
 
 ## 3. Ports and reverse proxy
 
-Both compose files publish host port **8081** (`8081:80`) so this can run
+Both compose files publish host port **8099** (`8099:80`) so this can run
 alongside Baby Tracker on 8080. Point your existing reverse proxy (Nginx
-Proxy Manager, Traefik, Caddy, …) at `http://<server-ip>:8081`.
+Proxy Manager, Traefik, Caddy, …) at `http://<server-ip>:8099`.
 
 ## 4. Accounts
 

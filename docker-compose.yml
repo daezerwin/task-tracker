@@ -5,15 +5,15 @@ services:
       dockerfile: Dockerfile
     image: ghcr.io/daezerwin/task-tracker:latest
     restart: unless-stopped
-    # 8081 rather than 8080, so it can run on the same host as Baby Tracker.
+    # 8099 rather than 8080, so it can run on the same host as Baby Tracker.
     ports:
-      - "8081:80"
+      - "8099:80"
     environment:
       APP_NAME: "Task Tracker"
       APP_ENV: production
       APP_KEY: ${APP_KEY:?APP_KEY is required — see README-DOCKER.md}
       APP_DEBUG: "false"
-      APP_URL: ${APP_URL:-http://localhost:8081}
+      APP_URL: ${APP_URL:-http://localhost:8099}
       APP_TIMEZONE: ${APP_TIMEZONE:-Asia/Manila}
       LOG_CHANNEL: stack
       LOG_LEVEL: error
