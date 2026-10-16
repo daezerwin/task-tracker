@@ -28,32 +28,19 @@ enum TaskCategory: string
     }
 
     // Class names are written out in full (never concatenated) so Tailwind's
-    // content scan of app/Enums finds them — see tailwind.config.js.
-    public function badgeClasses(): string
-    {
-        return match ($this) {
-            self::Cleaning => 'bg-sky-50 text-sky-700',
-            self::Kitchen => 'bg-amber-50 text-amber-700',
-            self::Laundry => 'bg-violet-50 text-violet-700',
-            self::Bathroom => 'bg-cyan-50 text-cyan-700',
-            self::Outdoor => 'bg-emerald-50 text-emerald-700',
-            self::Errands => 'bg-rose-50 text-rose-700',
-            self::Maintenance => 'bg-orange-50 text-orange-700',
-            self::Other => 'bg-gray-100 text-gray-600',
-        };
-    }
-
+    // content scan of app/Enums finds them — see tailwind.config.js. The 400
+    // shades read well on the dark Material surfaces.
     public function dotClass(): string
     {
         return match ($this) {
-            self::Cleaning => 'bg-sky-500',
-            self::Kitchen => 'bg-amber-500',
-            self::Laundry => 'bg-violet-500',
-            self::Bathroom => 'bg-cyan-500',
-            self::Outdoor => 'bg-emerald-500',
-            self::Errands => 'bg-rose-500',
-            self::Maintenance => 'bg-orange-500',
-            self::Other => 'bg-gray-400',
+            self::Cleaning => 'bg-sky-400',
+            self::Kitchen => 'bg-amber-400',
+            self::Laundry => 'bg-violet-400',
+            self::Bathroom => 'bg-cyan-400',
+            self::Outdoor => 'bg-lime-400',
+            self::Errands => 'bg-rose-400',
+            self::Maintenance => 'bg-orange-400',
+            self::Other => 'bg-neutral-400',
         };
     }
 }

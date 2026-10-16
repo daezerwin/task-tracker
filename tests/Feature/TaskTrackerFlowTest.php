@@ -66,6 +66,31 @@ class TaskTrackerFlowTest extends TestCase
         $this->assertSame('2026-10-15', $lpg->starts_on->toDateString());
     }
 
+    public function test_starter_chores_include_the_core_repeating_chores(): void
+    {
+        $this->seed(ChoreTemplateSeeder::class);
+        $user = User::factory()->create();
+        $this->actingAs($user)->post(route('tasks.starter'));
+
+        $schedules = $user->tasks()
+            ->whereIn('title', ['Clean floors', 'Clean rooms', 'Clean bathroom', 'Do laundry'])
+            ->get()
+            ->mapWithKeys(fn (Task $task) => [$task->title => $task->scheduleLabel()]);
+
+        $this->assertEquals([
+            'Clean floors' => 'Every day',
+            'Clean rooms' => 'Every Tue & Fri',
+            'Clean bathroom' => 'Every Sat',
+            'Do laundry' => 'Every Wed & Sat',
+        ], $schedules->all());
+
+        // The chores they replaced aren't offered alongside them.
+        $this->assertSame(0, ChoreTemplate::whereIn('title', [
+            'Sweep the floors', 'Mop the floors', 'Clean the bathroom',
+            'Laundry: wash & hang dry', 'Fold & put away clean laundry',
+        ])->count());
+    }
+
     public function test_chore_template_seeder_is_idempotent_and_restores_edits(): void
     {
         $this->seed(ChoreTemplateSeeder::class);
@@ -353,7 +378,7 @@ class TaskTrackerFlowTest extends TestCase
         $this->actingAs($user)->post(route('tasks.starter'));
         $task = $user->tasks()->first();
 
-        foreach ([route('dashboard'), route('calendar'), route('tasks.index'), route('tasks.create'), route('tasks.edit', $task), route('profile'), '/'] as $url) {
+        foreach ([route('dashboard'), route('calendar'), route('tasks.index'), route('tasks.create'), route('tasks.edit', $task), route('profile')] as $url) {
             $this->get($url)->assertOk();
         }
     }

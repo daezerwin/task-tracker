@@ -36,26 +36,27 @@ class ChoreTemplateSeeder extends Seeder
             // Daily
             ['title' => 'Make the beds', 'category' => 'cleaning', 'repeat' => 'daily', 'due_time' => '07:00'],
             ['title' => 'Water the plants', 'category' => 'outdoor', 'repeat' => 'daily', 'due_time' => '07:30'],
-            ['title' => 'Sweep the floors', 'category' => 'cleaning', 'repeat' => 'daily', 'due_time' => '08:00'],
+            ['title' => 'Clean floors', 'category' => 'cleaning', 'repeat' => 'daily', 'due_time' => '08:00',
+                'notes' => 'Sweep every day; mop as well on Tuesdays and Fridays.'],
             ['title' => 'Wash the dishes', 'category' => 'kitchen', 'repeat' => 'daily', 'due_time' => '20:00'],
             ['title' => 'Wipe kitchen counters & stove', 'category' => 'kitchen', 'repeat' => 'daily', 'due_time' => '20:30'],
             ['title' => 'Take out the kitchen trash', 'category' => 'kitchen', 'repeat' => 'daily', 'due_time' => '21:00'],
             ['title' => 'Tidy up the living room', 'category' => 'cleaning', 'repeat' => 'daily', 'due_time' => '21:30'],
 
             // Weekly — laundry
-            ['title' => 'Laundry: wash & hang dry', 'category' => 'laundry', 'repeat' => 'weekly', 'repeat_weekdays' => [self::WED, self::SAT], 'due_time' => '08:00',
-                'notes' => 'Separate whites, colors and darks. Check pockets first.'],
-            ['title' => 'Fold & put away clean laundry', 'category' => 'laundry', 'repeat' => 'weekly', 'repeat_weekdays' => [self::WED, self::SAT], 'due_time' => '16:00'],
+            ['title' => 'Do laundry', 'category' => 'laundry', 'repeat' => 'weekly', 'repeat_weekdays' => [self::WED, self::SAT], 'due_time' => '08:00',
+                'notes' => 'Wash, hang dry, then fold and put away. Separate whites, colors and darks; check pockets first.'],
             ['title' => 'Change bed sheets & pillowcases', 'category' => 'laundry', 'repeat' => 'weekly', 'repeat_weekdays' => [self::SAT], 'due_time' => '10:00'],
             ['title' => 'Wash towels & bath mats', 'category' => 'laundry', 'repeat' => 'weekly', 'repeat_weekdays' => [self::SUN], 'due_time' => '08:00'],
             ['title' => 'Iron clothes for the week', 'category' => 'laundry', 'repeat' => 'weekly', 'repeat_weekdays' => [self::SUN], 'due_time' => '15:00'],
 
             // Weekly — cleaning
-            ['title' => 'Mop the floors', 'category' => 'cleaning', 'repeat' => 'weekly', 'repeat_weekdays' => [self::TUE, self::FRI], 'due_time' => '09:00'],
+            ['title' => 'Clean rooms', 'category' => 'cleaning', 'repeat' => 'weekly', 'repeat_weekdays' => [self::TUE, self::FRI], 'due_time' => '09:00',
+                'notes' => 'Bedrooms and living areas: tidy up, dust surfaces, sweep under furniture.'],
             ['title' => 'Dust furniture, shelves & appliances', 'category' => 'cleaning', 'repeat' => 'weekly', 'repeat_weekdays' => [self::MON], 'due_time' => '09:00'],
             ['title' => 'Vacuum sofa, rugs & carpets', 'category' => 'cleaning', 'repeat' => 'weekly', 'repeat_weekdays' => [self::THU], 'due_time' => '09:00'],
             ['title' => 'Wipe mirrors & glass surfaces', 'category' => 'cleaning', 'repeat' => 'weekly', 'repeat_weekdays' => [self::FRI], 'due_time' => '10:00'],
-            ['title' => 'Clean the bathroom', 'category' => 'bathroom', 'repeat' => 'weekly', 'repeat_weekdays' => [self::SAT], 'due_time' => '09:00',
+            ['title' => 'Clean bathroom', 'category' => 'bathroom', 'repeat' => 'weekly', 'repeat_weekdays' => [self::SAT], 'due_time' => '09:00',
                 'notes' => 'Toilet, sink, shower/tub, floor. Restock tissue and soap.'],
             ['title' => 'Take out recyclables', 'category' => 'cleaning', 'repeat' => 'weekly', 'repeat_weekdays' => [self::MON], 'due_time' => '07:00'],
 

@@ -1,23 +1,21 @@
 @props(['title', 'subtitle' => null, 'back' => null])
 
-<div class="flex items-start justify-between gap-4">
-    <div>
-        @if ($back)
-            <a href="{{ $back }}" wire:navigate class="text-sm text-blue-600 hover:text-blue-700 inline-flex items-center gap-1 mb-1">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-                </svg>
-                Back
-            </a>
-        @endif
-        <h2 class="font-semibold text-2xl sm:text-3xl text-gray-800 leading-tight">{{ $title }}</h2>
+<div class="flex items-center gap-2">
+    @if ($back)
+        <a href="{{ $back }}" wire:navigate aria-label="Back"
+           class="-ml-2 flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-on-surface hover:bg-on-surface/[0.08]">
+            <span class="icon">arrow_back</span>
+        </a>
+    @endif
+    <div class="min-w-0 flex-1">
+        <h1 class="text-headline-sm sm:text-headline-lg text-on-surface">{{ $title }}</h1>
         @if ($subtitle)
-            <p class="text-base text-gray-500 mt-1">{{ $subtitle }}</p>
+            <p class="mt-1 text-body-lg text-on-surface-variant">{{ $subtitle }}</p>
         @endif
     </div>
 
     @isset($actions)
-        <div class="flex items-center gap-2 shrink-0">
+        <div class="flex shrink-0 items-center gap-2">
             {{ $actions }}
         </div>
     @endisset

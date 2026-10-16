@@ -47,21 +47,28 @@ $login = function () {
         </div>
 
         <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember" class="inline-flex items-center">
-                <input wire:model="form.remember" id="remember" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
+        <div class="block mt-5">
+            <label for="remember" class="inline-flex items-center cursor-pointer">
+                <input wire:model="form.remember" id="remember" type="checkbox" class="m3-checkbox" name="remember">
+                <span class="ms-3 text-body-md text-on-surface-variant">{{ __('Remember me') }}</span>
             </label>
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}" wire:navigate>
-                    {{ __('Forgot your password?') }}
+        @if (Route::has('password.request'))
+            <a class="mt-4 inline-block text-label-lg text-primary hover:underline rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary" href="{{ route('password.request') }}" wire:navigate>
+                {{ __('Forgot password?') }}
+            </a>
+        @endif
+
+        <div class="flex items-center justify-between mt-8">
+            @if (Route::has('register'))
+                <a href="{{ route('register') }}" wire:navigate
+                   class="-ml-3 inline-flex h-10 items-center rounded-full px-3 text-label-lg text-primary hover:bg-primary/[0.08]">
+                    {{ __('Create account') }}
                 </a>
             @endif
 
-            <x-primary-button class="ms-3">
+            <x-primary-button class="ms-auto">
                 {{ __('Log in') }}
             </x-primary-button>
         </div>

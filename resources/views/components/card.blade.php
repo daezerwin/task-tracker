@@ -1,5 +1,6 @@
 @props(['class' => ''])
 
-<div {{ $attributes->merge(['class' => 'bg-white rounded-2xl shadow-sm border border-blue-100/70 '.$class]) }}>
+{{-- Material filled card --}}
+<div {{ $attributes->merge(['class' => 'bg-surface-container rounded-3xl '.$class]) }}>
     {{ $slot }}
 </div>

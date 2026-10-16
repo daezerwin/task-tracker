@@ -78,64 +78,68 @@ $toggle = function (int $taskId, string $date) {
 @endphp
 
 <div>
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
-            <x-card class="p-3 sm:p-6 lg:col-span-2">
-                <div class="flex items-center justify-between gap-3 mb-4 px-1">
-                    <button type="button" wire:click="prevMonth" aria-label="Previous month"
-                            class="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 text-xl hover:bg-gray-50">
-                        ‹
-                    </button>
-                    <div class="text-center">
-                        <h2 class="font-semibold text-xl sm:text-2xl text-gray-800">{{ $this->monthStart->format('F Y') }}</h2>
-                        @unless ($this->monthStart->isSameMonth(today()))
-                            <button type="button" wire:click="goToday" class="text-sm text-blue-600 hover:text-blue-700">Back to this month</button>
-                        @endunless
-                    </div>
-                    <button type="button" wire:click="nextMonth" aria-label="Next month"
-                            class="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 text-xl hover:bg-gray-50">
-                        ›
-                    </button>
-                </div>
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 sm:pt-8">
+        <!-- Month header -->
+        <div class="mb-4 flex items-center gap-1">
+            <h1 class="min-w-0 flex-1 text-headline-sm sm:text-headline-lg text-on-surface">{{ $this->monthStart->format('F Y') }}</h1>
+            @unless ($this->monthStart->isSameMonth(today()))
+                <button type="button" wire:click="goToday"
+                        class="mr-1 h-10 px-4 rounded-full border border-outline text-label-lg text-primary hover:bg-primary/[0.08]">
+                    Today
+                </button>
+            @endunless
+            <button type="button" wire:click="prevMonth" aria-label="Previous month"
+                    class="flex h-12 w-12 items-center justify-center rounded-full text-on-surface-variant hover:bg-on-surface/[0.08]">
+                <span class="icon">chevron_left</span>
+            </button>
+            <button type="button" wire:click="nextMonth" aria-label="Next month"
+                    class="flex h-12 w-12 items-center justify-center rounded-full text-on-surface-variant hover:bg-on-surface/[0.08]">
+                <span class="icon">chevron_right</span>
+            </button>
+        </div>
 
-                <div class="grid grid-cols-7 text-center text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+            <x-card class="p-2 sm:p-4 lg:col-span-2">
+                <div class="grid grid-cols-7 pb-2 text-center text-label-md uppercase text-on-surface-variant">
                     @foreach (['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as $weekday)
-                        <div class="py-1">{{ $weekday }}</div>
+                        <div>{{ $weekday }}</div>
                     @endforeach
                 </div>
 
-                <div class="grid grid-cols-7 gap-px bg-gray-100 border border-gray-100 rounded-xl overflow-hidden">
+                <div class="grid grid-cols-7 gap-px overflow-hidden rounded-2xl bg-outline-variant/60">
                     @foreach ($this->cells as $cell)
+                        @php($isSelected = $cell['date'] === $this->selectedDate)
                         <button type="button" wire:key="cell-{{ $cell['date'] }}" wire:click="selectDay('{{ $cell['date'] }}')"
-                                class="min-h-16 sm:min-h-28 p-1 sm:p-1.5 flex flex-col items-start gap-1 text-left transition
-                                       {{ $cell['date'] === $this->selectedDate ? 'bg-blue-50 ring-2 ring-inset ring-blue-500' : ($cell['inMonth'] ? 'bg-white hover:bg-blue-50/50' : 'bg-gray-50 hover:bg-gray-100') }}">
-                            <span class="w-7 h-7 shrink-0 flex items-center justify-center rounded-full text-sm font-medium
-                                         {{ $cell['isToday'] ? 'bg-blue-600 text-white' : ($cell['inMonth'] ? 'text-gray-700' : 'text-gray-300') }}">
+                                @if ($isSelected) aria-pressed="true" @endif
+                                class="flex min-h-16 sm:min-h-28 flex-col items-center sm:items-start gap-1 p-1 sm:p-1.5 text-left transition
+                                       {{ $isSelected ? 'bg-secondary-container/50' : ($cell['inMonth'] ? 'bg-surface-container hover:bg-surface-high' : 'bg-surface-low hover:bg-surface-container') }}">
+                            <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-label-lg
+                                         {{ $cell['isToday'] ? 'bg-primary text-on-primary' : ($isSelected ? 'bg-secondary-container text-on-secondary-container' : ($cell['inMonth'] ? 'text-on-surface' : 'text-outline')) }}">
                                 {{ $cell['number'] }}
                             </span>
 
                             @if ($cell['items']->isNotEmpty())
-                                {{-- Phones: a dot per chore, greyed once done --}}
-                                <span class="flex flex-wrap gap-0.5 px-0.5 sm:hidden">
+                                {{-- Phones: a dot per chore, dimmed once done --}}
+                                <span class="flex flex-wrap justify-center gap-0.5 px-0.5 sm:hidden">
                                     @foreach ($cell['items']->take(6) as $item)
-                                        <span class="w-1.5 h-1.5 rounded-full {{ $item['done'] ? 'bg-gray-300' : $item['task']->category->dotClass() }}"></span>
+                                        <span class="h-1.5 w-1.5 rounded-full {{ $item['done'] ? 'bg-outline-variant' : $item['task']->category->dotClass() }}"></span>
                                     @endforeach
                                 </span>
 
                                 {{-- Wider screens: the first few chore titles --}}
-                                <span class="hidden sm:flex flex-col gap-0.5 w-full min-w-0">
+                                <span class="hidden w-full min-w-0 flex-col gap-0.5 sm:flex">
                                     @foreach ($cell['items']->take(3) as $item)
-                                        <span class="flex items-center gap-1 text-xs min-w-0 {{ $item['done'] ? 'text-gray-400 line-through' : 'text-gray-700' }}">
-                                            <span class="w-1.5 h-1.5 rounded-full shrink-0 {{ $item['done'] ? 'bg-gray-300' : $item['task']->category->dotClass() }}"></span>
+                                        <span class="flex min-w-0 items-center gap-1 text-label-sm {{ $item['done'] ? 'text-outline line-through' : 'text-on-surface-variant' }}">
+                                            <span class="h-1.5 w-1.5 shrink-0 rounded-full {{ $item['done'] ? 'bg-outline-variant' : $item['task']->category->dotClass() }}"></span>
                                             <span class="truncate">{{ $item['task']->title }}</span>
                                         </span>
                                     @endforeach
                                     @if ($cell['items']->count() > 3)
-                                        <span class="text-xs text-gray-400">+{{ $cell['items']->count() - 3 }} more</span>
+                                        <span class="text-label-sm text-outline">+{{ $cell['items']->count() - 3 }} more</span>
                                     @endif
                                 </span>
 
-                                <span class="mt-auto px-0.5 text-[11px] tabular-nums {{ $cell['done'] === $cell['items']->count() ? 'text-emerald-600 font-semibold' : 'text-gray-400' }}">
+                                <span class="mt-auto px-0.5 text-[11px] tabular-nums {{ $cell['done'] === $cell['items']->count() ? 'text-tertiary font-medium' : 'text-outline' }}">
                                     {{ $cell['done'] }}/{{ $cell['items']->count() }}
                                 </span>
                             @endif
@@ -144,29 +148,29 @@ $toggle = function (int $taskId, string $date) {
                 </div>
             </x-card>
 
-            <x-card class="p-6">
-                <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">
-                    {{ $selected->isToday() ? 'Today' : ($selected->isYesterday() ? 'Yesterday' : ($selected->isTomorrow() ? 'Tomorrow' : $selected->format('l'))) }}
-                </p>
-                <h3 class="text-xl font-semibold text-gray-800">{{ $selected->format('F j, Y') }}</h3>
-                @if ($selectedItems->isNotEmpty())
-                    <p class="text-sm text-gray-500 mt-1">{{ $selectedDone }} of {{ $selectedItems->count() }} done</p>
-                @endif
+            <x-card class="p-2 sm:p-3">
+                <div class="px-3 pt-2">
+                    <p class="text-label-lg text-primary">
+                        {{ $selected->isToday() ? 'Today' : ($selected->isYesterday() ? 'Yesterday' : ($selected->isTomorrow() ? 'Tomorrow' : $selected->format('l'))) }}
+                    </p>
+                    <h2 class="text-title-lg text-on-surface">{{ $selected->format('F j, Y') }}</h2>
+                    @if ($selectedItems->isNotEmpty())
+                        <p class="mt-0.5 text-body-md text-on-surface-variant">{{ $selectedDone }} of {{ $selectedItems->count() }} done</p>
+                    @endif
+                </div>
 
                 @if ($selectedItems->isEmpty())
-                    <x-empty-state title="Nothing scheduled" subtitle="No chores fall on this day." />
+                    <x-empty-state title="Nothing scheduled" subtitle="No chores fall on this day." icon="calendar_month" />
                 @else
-                    <ul class="divide-y divide-gray-100 mt-2">
+                    <ul class="mt-2">
                         @foreach ($selectedItems as $item)
                             <x-task-row :task="$item['task']" :done="$item['done']" :date="$this->selectedDate" />
                         @endforeach
                     </ul>
                 @endif
-
-                <a href="{{ route('tasks.create', ['date' => $this->selectedDate]) }}" wire:navigate class="block mt-4">
-                    <x-secondary-button class="w-full">+ Add task on this day</x-secondary-button>
-                </a>
             </x-card>
         </div>
     </div>
+
+    <x-fab icon="add" label="Add task" :href="route('tasks.create', ['date' => $this->selectedDate])" />
 </div>

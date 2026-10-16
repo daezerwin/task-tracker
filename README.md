@@ -55,7 +55,23 @@ npm run build   # or `npm run dev` while working on frontend
 php artisan serve
 ```
 
-Visit `http://localhost:8000`. In the `local` environment the seeder also
+Visit `http://localhost:8000`.
+
+### With DDEV
+
+`.ddev/config.yaml` runs the app at `https://task-tracker.ddev.site`
+(PHP 8.4, nginx-fpm). It has no database container: the app uses SQLite,
+the same as the production image. DDEV's `.env` rewriting is also turned
+off, so set `APP_URL=https://task-tracker.ddev.site` in `.env` yourself.
+
+```bash
+ddev start
+ddev composer install
+ddev artisan migrate --seed       # or migrate:fresh --seed to start over
+npm install && npm run build      # on the host (node_modules is host-built)
+```
+
+In the `local` environment the seeder also
 creates `test@example.com` / `password` with the starter chores and a
 partly ticked-off past week, so the dashboard and calendar have data.
 

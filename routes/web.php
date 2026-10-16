@@ -5,7 +5,8 @@ use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
-Route::view('/', 'welcome');
+// No landing page: guests end up on the login screen via the dashboard's auth middleware.
+Route::redirect('/', '/dashboard');
 
 Route::view('profile', 'profile')
     ->middleware(['auth'])

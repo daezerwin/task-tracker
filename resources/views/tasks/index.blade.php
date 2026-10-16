@@ -1,24 +1,22 @@
 <x-app-layout>
     <x-slot name="header">
-        <x-page-header title="Tasks" subtitle="Your chores and how often they repeat.">
-            <x-slot name="actions">
-                <a href="{{ route('tasks.create') }}" wire:navigate><x-primary-button>+ Add</x-primary-button></a>
-            </x-slot>
-        </x-page-header>
+        <x-page-header title="Tasks" subtitle="Your chores and how often they repeat." />
     </x-slot>
 
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         @if (session('status'))
-            <div class="mb-4 rounded-xl bg-emerald-50 text-emerald-700 text-sm px-4 py-3">{{ session('status') }}</div>
+            <div class="mb-4 flex items-center gap-3 rounded-xl bg-surface-highest px-4 py-3 text-body-md text-on-surface">
+                <span class="icon text-[20px] text-tertiary">check</span>{{ session('status') }}
+            </div>
         @endif
 
         @if (! $hasTasks)
-            <x-card class="p-7">
-                <x-empty-state title="No tasks yet" subtitle="Add your own, or start with a list of common household chores already on a schedule.">
+            <x-card>
+                <x-empty-state title="No tasks yet" subtitle="Add your own, or start with a list of common household chores already on a schedule." icon="checklist">
                     <x-slot name="action">
                         <form method="POST" action="{{ route('tasks.starter') }}">
                             @csrf
-                            <x-primary-button>Add starter chores</x-primary-button>
+                            <x-primary-button><span class="icon text-[18px]">add</span> Add starter chores</x-primary-button>
                         </form>
                     </x-slot>
                 </x-empty-state>
@@ -26,15 +24,14 @@
         @else
             <div class="space-y-6">
                 @foreach ($groups as $group)
-                    <div>
-                        <div class="flex items-center gap-2 mb-2 px-1">
-                            <span class="w-2.5 h-2.5 rounded-full {{ $group['category']->dotClass() }}"></span>
-                            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                                {{ $group['category']->label() }} &middot; {{ $group['tasks']->count() }}
-                            </p>
-                        </div>
-                        <x-card class="px-7 py-2">
-                            <ul class="divide-y divide-gray-100">
+                    <section>
+                        <h2 class="mb-2 flex items-center gap-2 px-4 text-title-sm text-on-surface-variant">
+                            <span class="h-2.5 w-2.5 rounded-full {{ $group['category']->dotClass() }}"></span>
+                            {{ $group['category']->label() }}
+                            <span class="text-outline">&middot; {{ $group['tasks']->count() }}</span>
+                        </h2>
+                        <x-card class="p-1.5">
+                            <ul>
                                 @foreach ($group['tasks'] as $task)
                                     @php($next = $task->nextOccurrence())
                                     <x-timeline-item
@@ -51,15 +48,17 @@
                                 @endforeach
                             </ul>
                         </x-card>
-                    </div>
+                    </section>
                 @endforeach
             </div>
 
-            <form method="POST" action="{{ route('tasks.starter') }}" class="mt-8 text-center text-sm text-gray-500">
+            <form method="POST" action="{{ route('tasks.starter') }}" class="mt-8 text-center text-body-md text-on-surface-variant">
                 @csrf
                 Deleted a starter chore by mistake?
-                <button type="submit" class="text-blue-600 hover:text-blue-700">Re-add missing starter chores</button>
+                <button type="submit" class="ml-1 inline-flex h-10 items-center rounded-full px-3 text-label-lg text-primary hover:bg-primary/[0.08]">Re-add missing starter chores</button>
             </form>
         @endif
     </div>
+
+    <x-fab icon="add" label="New task" :href="route('tasks.create')" />
 </x-app-layout>
