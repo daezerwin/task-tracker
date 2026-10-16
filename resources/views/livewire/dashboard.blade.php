@@ -52,6 +52,16 @@ $week = computed(function () {
         ->values();
 });
 
+// Rolling seven days from today for the agenda slider, whichever day is being viewed.
+$agenda = computed(fn () => $this->schedule->between(today(), today()->addDays(6))
+    ->map(fn ($items, $date) => [
+        'date' => $date,
+        'day' => TaskSchedule::parseDay($date),
+        'items' => $items,
+        'done' => $items->where('done', true)->count(),
+    ])
+    ->values());
+
 $prevDay = function () {
     $this->dayOffset--;
 };
@@ -189,6 +199,85 @@ $saveQuickTask = function () {
                     <div class="h-full rounded-full bg-primary transition-all duration-300" style="width: {{ $total ? $doneCount / $total * 100 : 0 }}%"></div>
                 </div>
             </x-card>
+
+            <!-- Next 7 days: swipe on touch, arrows on wider screens; tapping a card opens that day below -->
+            <section x-data="{
+                         atStart: true,
+                         atEnd: false,
+                         update() {
+                             const track = this.$refs.track;
+                             this.atStart = track.scrollLeft <= 4;
+                             this.atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 4;
+                         },
+                         slide(direction) {
+                             this.$refs.track.scrollBy({ left: direction * this.$refs.track.clientWidth * 0.8, behavior: 'smooth' });
+                         },
+                     }"
+                     x-init="update()" x-on:resize.window="update()">
+                <div class="flex items-center justify-between gap-2">
+                    <p class="text-title-md text-on-surface">Next 7 days</p>
+                    <div class="hidden sm:flex">
+                        <button type="button" x-on:click="slide(-1)" x-bind:disabled="atStart" aria-label="Scroll back"
+                                class="flex h-10 w-10 items-center justify-center rounded-full text-on-surface-variant hover:bg-on-surface/[0.08] disabled:opacity-40 disabled:hover:bg-transparent">
+                            <span class="icon">chevron_left</span>
+                        </button>
+                        <button type="button" x-on:click="slide(1)" x-bind:disabled="atEnd" aria-label="Scroll forward"
+                                class="flex h-10 w-10 items-center justify-center rounded-full text-on-surface-variant hover:bg-on-surface/[0.08] disabled:opacity-40 disabled:hover:bg-transparent">
+                            <span class="icon">chevron_right</span>
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Bleeds to the screen edge below lg so the next card peeks in as a swipe hint. --}}
+                <div x-ref="track" x-on:scroll.passive="update()"
+                     class="scrollbar-none -mx-4 mt-2 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 sm:-mx-6 sm:scroll-px-6 sm:px-6 lg:mx-0 lg:scroll-px-0 lg:px-0">
+                    @foreach ($this->agenda as $card)
+                        @php
+                            $cardTotal = $card['items']->count();
+                            $isSelected = $card['date'] === $day->toDateString();
+                        @endphp
+                        <button type="button" wire:key="agenda-{{ $card['date'] }}" wire:click="jumpTo('{{ $card['date'] }}')"
+                                aria-pressed="{{ $isSelected ? 'true' : 'false' }}"
+                                class="flex w-[80%] shrink-0 snap-start flex-col rounded-3xl bg-surface-container p-4 text-left transition hover:bg-surface-high focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary sm:w-64 lg:w-72 {{ $isSelected ? 'ring-2 ring-inset ring-primary' : '' }}">
+                            <span class="flex w-full items-start justify-between gap-3">
+                                <span class="min-w-0">
+                                    <span class="block text-label-lg {{ $loop->first ? 'text-primary' : 'text-on-surface-variant' }}">
+                                        {{ match ($loop->index) { 0 => 'Today', 1 => 'Tomorrow', default => $card['day']->format('l') } }}
+                                    </span>
+                                    <span class="block text-title-lg text-on-surface">{{ $card['day']->format('M j') }}</span>
+                                </span>
+                                <span class="shrink-0 text-body-md tabular-nums text-on-surface-variant">{{ $card['done'] }}/{{ $cardTotal }}</span>
+                            </span>
+                            <span class="mt-3 block h-1 w-full overflow-hidden rounded-full bg-surface-highest">
+                                <span class="block h-full rounded-full bg-primary" style="width: {{ $cardTotal ? $card['done'] / $cardTotal * 100 : 0 }}%"></span>
+                            </span>
+
+                            @if ($cardTotal === 0)
+                                <span class="mt-4 block text-body-md text-on-surface-variant">Nothing scheduled</span>
+                            @else
+                                <span class="mt-3 block w-full space-y-2">
+                                    @foreach ($card['items']->take(5) as $item)
+                                        <span class="flex items-center gap-2 text-body-md">
+                                            @if ($item['done'])
+                                                <span class="icon text-[16px] text-primary">check</span>
+                                            @else
+                                                <span class="mx-1 h-2 w-2 shrink-0 rounded-full {{ $item['task']->category->dotClass() }}"></span>
+                                            @endif
+                                            <span class="min-w-0 flex-1 truncate {{ $item['done'] ? 'text-outline line-through' : 'text-on-surface' }}">{{ $item['task']->title }}</span>
+                                            @if ($item['task']->timeLabel())
+                                                <span class="shrink-0 tabular-nums text-on-surface-variant">{{ $item['task']->timeLabel() }}</span>
+                                            @endif
+                                        </span>
+                                    @endforeach
+                                </span>
+                                @if ($cardTotal > 5)
+                                    <span class="mt-2 block text-label-md text-primary">+{{ $cardTotal - 5 }} more</span>
+                                @endif
+                            @endif
+                        </button>
+                    @endforeach
+                </div>
+            </section>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
                 <div class="lg:col-span-2 space-y-4">

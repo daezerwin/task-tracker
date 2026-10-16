@@ -114,9 +114,9 @@ class TaskTrackerFlowTest extends TestCase
 
         $this->actingAs($user);
 
+        // The Saturday chore shows in the week agenda, but isn't counted for today.
         $component = Volt::test('dashboard')
             ->assertSee('Wash the dishes')
-            ->assertDontSee('Clean the bathroom') // Saturdays only
             ->assertSee('0 of 1 done');
 
         $component->call('toggle', $daily->id, '2026-10-14')->assertSee('1 of 1 done');
@@ -167,14 +167,32 @@ class TaskTrackerFlowTest extends TestCase
         $this->actingAs($user);
 
         Volt::test('dashboard')
-            ->assertDontSee('Change bed sheets')
+            ->assertSee('0 of 0 done')
             ->call('nextDay')->call('nextDay')->call('nextDay')
             ->assertSee('Saturday, October 17')
-            ->assertSee('Change bed sheets')
+            ->assertSee('0 of 1 done')
             ->call('goToday')
             ->assertSet('dayOffset', 0)
             ->call('jumpTo', '2026-10-17')
             ->assertSet('dayOffset', 3);
+    }
+
+    public function test_dashboard_agenda_shows_the_next_seven_days(): void
+    {
+        $user = User::factory()->create();
+        Task::factory()->for($user)->weekly([6])->create(['title' => 'Change bed sheets', 'starts_on' => '2026-10-01', 'due_time' => '10:00']);
+        Task::factory()->for($user)->create(['title' => 'Renew passport', 'starts_on' => '2026-10-21']); // the 8th day
+
+        $this->actingAs($user);
+
+        Volt::test('dashboard')
+            ->assertSee('Next 7 days')
+            ->assertSeeInOrder(['Oct 14', 'Tomorrow', 'Oct 15', 'Saturday', 'Oct 17', 'Change bed sheets', '10:00 AM', 'Tuesday', 'Oct 20'])
+            ->assertDontSee('Oct 21')
+            ->assertDontSee('Renew passport')
+            // The agenda stays anchored on today while another day is open.
+            ->call('nextDay')->call('nextDay')
+            ->assertSeeInOrder(['Today', 'Oct 14', 'Oct 20']);
     }
 
     public function test_quick_add_creates_a_task_and_only_closes_the_modal_on_success(): void

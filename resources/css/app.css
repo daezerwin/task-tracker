@@ -70,3 +70,14 @@
         @apply h-auto py-3;
     }
 }
+
+@layer utilities {
+    /* Swipeable rows that still scroll, just without a visible bar. */
+    .scrollbar-none {
+        scrollbar-width: none;
+    }
+
+    .scrollbar-none::-webkit-scrollbar {
+        display: none;
+    }
+}
