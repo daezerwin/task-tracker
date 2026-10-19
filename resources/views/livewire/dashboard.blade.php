@@ -2,7 +2,6 @@
 
 use App\Enums\RepeatFrequency;
 use App\Enums\TaskCategory;
-use App\Services\StarterChores;
 use App\Services\TaskSchedule;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -84,10 +83,6 @@ $toggle = function (int $taskId, string $date) {
     $this->schedule->toggle($taskId, $date);
 };
 
-$addStarterChores = function () {
-    StarterChores::addTo(Auth::user());
-};
-
 $saveQuickTask = function () {
     $this->validate([
         'quickTitle' => ['required', 'string', 'max:255'],
@@ -146,7 +141,7 @@ $saveQuickTask = function () {
                     each already on a sensible schedule — or add your own from scratch.
                 </p>
                 <div class="mt-8 flex flex-wrap justify-center gap-3">
-                    <x-primary-button type="button" wire:click="addStarterChores">
+                    <x-primary-button type="button" x-on:click="$dispatch('open-modal', 'starter-chores')">
                         <span class="icon text-[18px]">add</span> Add starter chores
                     </x-primary-button>
                     <a href="{{ route('tasks.create') }}" wire:navigate>
@@ -154,6 +149,8 @@ $saveQuickTask = function () {
                     </a>
                 </div>
             </x-card>
+
+            <x-starter-chores-wizard />
         @else
             <!-- Day header -->
             <div class="flex items-center gap-1">

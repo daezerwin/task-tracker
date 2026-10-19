@@ -18,10 +18,11 @@ calendar of what's due and what got done.
   - with an optional end date, or paused without losing history
 - **Calendar** — month grid showing each day's chores and how many were
   done; pick a day to tick things off or add a task on that date
-- **Starter chores** — 33 common household chores on sensible schedules
+- **Starter chores** — 32 common household chores on sensible schedules
   (daily dishes, laundry Wed & Sat, bathroom Saturdays, bills on the 10th,
-  aircon filters monthly, curtains quarterly…), copied into your list with
-  one click and editable like any other task
+  aircon filters monthly, curtains quarterly…). A step-by-step dialog asks
+  whether to add or skip each one, and added chores are editable like any
+  other task
 
 ## How it works
 

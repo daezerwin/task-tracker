@@ -14,10 +14,9 @@
             <x-card>
                 <x-empty-state title="No tasks yet" subtitle="Add your own, or start with a list of common household chores already on a schedule." icon="checklist">
                     <x-slot name="action">
-                        <form method="POST" action="{{ route('tasks.starter') }}">
-                            @csrf
-                            <x-primary-button><span class="icon text-[18px]">add</span> Add starter chores</x-primary-button>
-                        </form>
+                        <x-primary-button type="button" x-data x-on:click="$dispatch('open-modal', 'starter-chores')">
+                            <span class="icon text-[18px]">add</span> Add starter chores
+                        </x-primary-button>
                     </x-slot>
                 </x-empty-state>
             </x-card>
@@ -52,13 +51,15 @@
                 @endforeach
             </div>
 
-            <form method="POST" action="{{ route('tasks.starter') }}" class="mt-8 text-center text-body-md text-on-surface-variant">
-                @csrf
-                Deleted a starter chore by mistake?
-                <button type="submit" class="ml-1 inline-flex h-10 items-center rounded-full px-3 text-label-lg text-primary hover:bg-primary/[0.08]">Re-add missing starter chores</button>
-            </form>
+            <p class="mt-8 text-center text-body-md text-on-surface-variant">
+                Deleted or skipped a starter chore?
+                <button type="button" x-data x-on:click="$dispatch('open-modal', 'starter-chores')"
+                        class="ml-1 inline-flex h-10 items-center rounded-full px-3 text-label-lg text-primary hover:bg-primary/[0.08]">Add missing starter chores</button>
+            </p>
         @endif
     </div>
 
     <x-fab icon="add" label="New task" :href="route('tasks.create')" />
+
+    <x-starter-chores-wizard />
 </x-app-layout>

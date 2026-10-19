@@ -41,23 +41,75 @@ class TaskTrackerFlowTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        Volt::test('dashboard')->call('addStarterChores');
+        $this->from(route('dashboard'))
+            ->post(route('tasks.starter'), $this->everyStarterChore())
+            ->assertRedirect(route('dashboard'));
 
         $this->assertSame(ChoreTemplate::count(), $user->tasks()->count());
 
         // Running it again only restores what's missing.
         $user->tasks()->where('title', 'Wash the dishes')->delete();
-        $this->post(route('tasks.starter'))->assertRedirect(route('tasks.index'));
+        $this->from(route('tasks.index'))
+            ->post(route('tasks.starter'), $this->everyStarterChore())
+            ->assertRedirect(route('tasks.index'))
+            ->assertSessionHas('status', 'Added 1 starter chore.');
 
         $this->assertSame(ChoreTemplate::count(), $user->tasks()->count());
         $this->assertSame(1, $user->tasks()->where('title', 'Wash the dishes')->count());
+    }
+
+    public function test_starter_chore_wizard_only_adds_the_chores_picked(): void
+    {
+        $this->seed(ChoreTemplateSeeder::class);
+        $user = User::factory()->create();
+        $picked = ChoreTemplate::whereIn('title', ['Wash the dishes', 'Pay utility bills'])->pluck('id');
+
+        $this->actingAs($user)
+            ->from(route('tasks.index'))
+            ->post(route('tasks.starter'), ['templates' => $picked->all()])
+            ->assertRedirect(route('tasks.index'))
+            ->assertSessionHas('status', 'Added 2 starter chores.');
+
+        $this->assertEqualsCanonicalizing(['Wash the dishes', 'Pay utility bills'], $user->tasks()->pluck('title')->all());
+    }
+
+    public function test_starter_chore_wizard_needs_at_least_one_chore_picked(): void
+    {
+        $this->seed(ChoreTemplateSeeder::class);
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->from(route('tasks.index'))
+            ->post(route('tasks.starter'), ['templates' => []])
+            ->assertSessionHasErrors('templates');
+
+        $this->assertSame(0, $user->tasks()->count());
+    }
+
+    public function test_starter_chore_wizard_steps_through_only_the_missing_chores(): void
+    {
+        $this->seed(ChoreTemplateSeeder::class);
+        $user = User::factory()->create();
+        $user->tasks()->create(['title' => 'wash the dishes', 'starts_on' => today()]);
+        $this->actingAs($user);
+
+        $this->blade('<x-starter-chores-wizard />')
+            ->assertSee('Make the beds')
+            ->assertSee('7:00 AM')
+            ->assertSee('Monthly on the 10th')
+            ->assertDontSee('Wash the dishes');
+
+        $this->post(route('tasks.starter'), $this->everyStarterChore());
+
+        $this->blade('<x-starter-chores-wizard />')
+            ->assertSee('You already have every starter chore.');
     }
 
     public function test_starter_monthly_chores_start_on_their_next_day_of_the_month(): void
     {
         $this->seed(ChoreTemplateSeeder::class);
         $user = User::factory()->create();
-        $this->actingAs($user)->post(route('tasks.starter'));
+        $this->actingAs($user)->post(route('tasks.starter'), $this->everyStarterChore());
 
         $bills = $user->tasks()->where('title', 'Pay utility bills')->first();     // the 10th — already past
         $lpg = $user->tasks()->where('title', 'Check LPG tank & stove hose for leaks')->first(); // the 15th
@@ -70,7 +122,7 @@ class TaskTrackerFlowTest extends TestCase
     {
         $this->seed(ChoreTemplateSeeder::class);
         $user = User::factory()->create();
-        $this->actingAs($user)->post(route('tasks.starter'));
+        $this->actingAs($user)->post(route('tasks.starter'), $this->everyStarterChore());
 
         $schedules = $user->tasks()
             ->whereIn('title', ['Clean floors', 'Clean rooms', 'Clean bathroom', 'Do laundry'])
@@ -393,11 +445,17 @@ class TaskTrackerFlowTest extends TestCase
     {
         $this->seed(ChoreTemplateSeeder::class);
         $user = User::factory()->create();
-        $this->actingAs($user)->post(route('tasks.starter'));
+        $this->actingAs($user)->post(route('tasks.starter'), $this->everyStarterChore());
         $task = $user->tasks()->first();
 
         foreach ([route('dashboard'), route('calendar'), route('tasks.index'), route('tasks.create'), route('tasks.edit', $task), route('profile')] as $url) {
             $this->get($url)->assertOk();
         }
+    }
+
+    /** What the starter chore wizard submits when every chore is added. */
+    private function everyStarterChore(): array
+    {
+        return ['templates' => ChoreTemplate::pluck('id')->all()];
     }
 }
